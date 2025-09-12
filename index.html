@@ -542,3 +542,84 @@
                     <p>Follow us on social media for updates</p>
                     <div style="display: flex; gap: 15px; margin-top: 15px;">
                         <a href="https://www.facebook.com/ssvniketan" target="_blank" style="color: #bdc3c7; font-size: 1.5rem;"><i class="fab fa-facebook"></
+                                <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.toggle('active');
+        });
+        let lastScrollTop = 0;
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+            lastScrollTop = scrollTop;
+        });
+        document.querySelectorAll('.mobile-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+            });
+        });
+        const counters = document.querySelectorAll('.stat-number');
+        const speed = 400;
+        const countUp = () => {
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    const inc = target / speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 20);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                const rect = counter.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+                if (isVisible) {
+                    updateCount();
+                }
+            });
+        };
+        window.addEventListener('scroll', countUp);
+        countUp();
+        document.addEventListener('DOMContentLoaded', function() {
+            const blogUrl = 'https://ssvniketan.blogspot.com';
+            const feedUrl = `${blogUrl}/feeds/posts/default?alt=json-in-script&callback=displayBlogPosts`;
+            const script = document.createElement('script');
+            script.src = feedUrl;
+            document.body.appendChild(script);
+        });
+        function displayBlogPosts(data) {
+            const blogPostsContainer = document.getElementById('blogPosts');
+            blogPostsContainer.innerHTML = '';
+            if (!data.feed || !data.feed.entry || data.feed.entry.length === 0) {
+                blogPostsContainer.innerHTML = '<div class="loading">No recent posts available.</div>';
+                return;
+            }
+            const posts = data.feed.entry.slice(0, 3);
+            posts.forEach(post => {
+                const title = post.title.$t;
+                const content = post.content.$t;
+                const link = post.link.find(link => link.rel === 'alternate').href;
+                const published = new Date(post.published.$t).toLocaleDateString();
+                const postElement = document.createElement('div');
+                postElement.className = 'blog-post';
+                const excerpt = content.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
+                postElement.innerHTML = `
+                    <div class="date">${published}</div>
+                    <h3>${title}</h3>
+                    <p>${excerpt}</p>
+                    <a href="${link}" target="_blank" class="read-more">See More</a>
+                `;
+                blogPostsContainer.appendChild(postElement);
+            });
+        }
+    </script>
+</body>
+                        </html>
